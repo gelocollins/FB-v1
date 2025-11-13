@@ -23,7 +23,16 @@ const RegisterPage: React.FC = () => {
     setError(null);
     setSuccess(null);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Check if any users exist to determine if this is the first signup
+      const { count, error: countError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      if (countError) throw countError;
+      
+      const isFirstUser = count === 0;
+      
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -32,11 +41,32 @@ const RegisterPage: React.FC = () => {
             }
         }
       });
-      if (error) throw error;
-      if (data.user && data.user.identities && data.user.identities.length === 0) {
+      
+      if (signUpError) throw signUpError;
+      
+      // If auth user was created, also create a public profile
+      if (authData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+                id: authData.user.id,
+                email: authData.user.email!,
+                name: name,
+                role: isFirstUser ? 'admin' : 'user'
+            });
+
+          if (profileError) {
+              // This is a critical error. The auth user exists but the profile doesn't.
+              // A production app might try to delete the auth user here for cleanup.
+              console.error("Profile creation error:", profileError);
+              throw new Error("Failed to create user profile after signup. Please contact support.");
+          }
+      }
+
+      if (authData.user && authData.user.identities && authData.user.identities.length === 0) {
         setSuccess("User with this email already exists but requires confirmation. A new confirmation link has been sent.");
       } else {
-        setSuccess("Registration successful! Please check your email to confirm your account.");
+        setSuccess(`Registration successful! ${isFirstUser ? "You have been made the default administrator." : "Please check your email to confirm your account."}`);
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
