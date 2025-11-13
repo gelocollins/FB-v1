@@ -2,12 +2,12 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../supabase/client';
 import { Session, User } from '@supabase/supabase-js';
-import { Profile } from '../types';
+import { UserProfile } from '../types';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: Profile | null;
+  userProfile: UserProfile | null;
   isAdmin: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
@@ -18,7 +18,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (session?.user) {
           fetchProfile(session.user.id);
         } else {
-          setProfile(null);
+          setUserProfile(null);
           setIsAdmin(false);
           setLoading(false);
         }
@@ -61,17 +61,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const fetchProfile = async (userId: string) => {
     setLoading(true);
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('*')
       .eq('id', userId)
       .single();
 
     if (error) {
       console.error('Error fetching profile', error);
-      setProfile(null);
+      setUserProfile(null);
       setIsAdmin(false);
     } else {
-      setProfile(data);
+      setUserProfile(data);
       setIsAdmin(data?.role === 'admin');
     }
     setLoading(false);
@@ -81,14 +81,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setProfile(null);
+    setUserProfile(null);
     setIsAdmin(false);
   };
 
   const value = {
     user,
     session,
-    profile,
+    userProfile,
     isAdmin,
     loading,
     signOut,

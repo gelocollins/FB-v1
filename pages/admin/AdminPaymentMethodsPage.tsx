@@ -56,7 +56,10 @@ const AdminPaymentMethodsPage: React.FC = () => {
                                 <p>Name: {method.account_name}</p>
                                 <p>Number: {method.account_number}</p>
                             </div>
-                            <div>
+                            <div className="flex items-center space-x-4">
+                               <span className={`px-2 py-1 text-xs font-semibold rounded-full ${method.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                  {method.is_active ? 'Active' : 'Inactive'}
+                                </span>
                                 <button onClick={() => handleOpenModal(method)} className="text-blue-500 hover:underline">Edit</button>
                             </div>
                         </div>
@@ -76,6 +79,7 @@ const PaymentMethodForm: React.FC<{ method: PaymentMethod | null, onSave: () => 
         method_name: method?.method_name || '',
         account_name: method?.account_name || '',
         account_number: method?.account_number || '',
+        is_active: method?.is_active ?? true,
     });
     const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(method?.qr_code_base64 || null);
     const [loading, setLoading] = useState(false);
@@ -128,6 +132,19 @@ const PaymentMethodForm: React.FC<{ method: PaymentMethod | null, onSave: () => 
                 <label className="block text-sm font-medium">QR Code (Optional)</label>
                 <input type="file" accept="image/*" onChange={handleFileChange} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"/>
                 {qrCodeBase64 && <img src={qrCodeBase64} alt="QR Preview" className="mt-2 h-32 w-auto object-contain rounded" />}
+            </div>
+             <div className="flex items-center">
+                <input
+                    type="checkbox"
+                    id="is_active"
+                    name="is_active"
+                    checked={formData.is_active}
+                    onChange={e => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                    className="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                />
+                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
+                    Active
+                </label>
             </div>
             <button type="submit" disabled={loading} className="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 disabled:bg-gray-400">
                 {loading ? 'Saving...' : 'Save Method'}

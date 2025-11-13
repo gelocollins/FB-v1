@@ -10,6 +10,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cart: {
+        Row: {
+          id: string
+          user_id: string
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          product_id: string
+          quantity: number
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -85,7 +121,7 @@ export type Database = {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -98,6 +134,7 @@ export type Database = {
           id: string
           method_name: string
           qr_code_base64: string | null
+          is_active: boolean
         }
         Insert: {
           account_name: string
@@ -106,6 +143,7 @@ export type Database = {
           id?: string
           method_name: string
           qr_code_base64?: string | null
+          is_active?: boolean
         }
         Update: {
           account_name?: string
@@ -114,6 +152,7 @@ export type Database = {
           id?: string
           method_name?: string
           qr_code_base64?: string | null
+          is_active?: boolean
         }
         Relationships: []
       }
@@ -150,7 +189,7 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      users: {
         Row: {
           address: string | null
           email: string
@@ -177,10 +216,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_id_fkey"
+            foreignKeyName: "profiles_id_fkey" // Supabase console might name this profiles_id_fkey by convention
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "users"
+            referencedRelation: "users" // This refers to auth.users
             referencedColumns: ["id"]
           },
         ]
@@ -191,8 +230,8 @@ export type Database = {
           product_id: string | null
           promo_type: "percentage" | "fixed" | "global"
           value: number
-          start_date: string | null
-          end_date: string | null
+          start_date: string
+          end_date: string
           created_at: string
           code: string | null
         }
@@ -201,8 +240,8 @@ export type Database = {
           product_id?: string | null
           promo_type: "percentage" | "fixed" | "global"
           value: number
-          start_date?: string | null
-          end_date?: string | null
+          start_date: string
+          end_date: string
           created_at?: string
           code?: string | null
         }
@@ -211,8 +250,8 @@ export type Database = {
           product_id?: string | null
           promo_type?: "percentage" | "fixed" | "global"
           value?: number
-          start_date?: string | null
-          end_date?: string | null
+          start_date?: string
+          end_date?: string
           created_at?: string
           code?: string | null
         }
@@ -288,7 +327,7 @@ export type Database = {
 
 export type Product = Database['public']['Tables']['products']['Row'];
 export type ProductInsert = Database['public']['Tables']['products']['Insert'];
-export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type UserProfile = Database['public']['Tables']['users']['Row'];
 export type Order = Database['public']['Tables']['orders']['Row'];
 export type OrderStatus = Database['public']['Enums']['order_status'];
 export type OrderItem = Database['public']['Tables']['order_items']['Row'];
@@ -303,7 +342,7 @@ export type CartItem = {
 
 export type OrderWithItems = Order & {
     order_items: (OrderItem & { products: Product | null })[];
-    profiles: Profile | null;
+    users: UserProfile | null;
 };
 
 export type StockLogWithProduct = StockLog & { products: { name: string } | null };

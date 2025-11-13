@@ -2,16 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../supabase/client';
-import { OrderWithItems, Profile } from '../types';
+import { OrderWithItems, UserProfile } from '../types';
 import Spinner from '../components/ui/Spinner';
 import { formatCurrency } from '../utils';
 
 const AccountPage: React.FC = () => {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('orders');
 
   if (authLoading) return <div className="h-64 flex justify-center items-center"><Spinner /></div>;
-  if (!user || !profile) return <p className="text-center py-10">Please log in to view your account.</p>;
+  if (!user || !userProfile) return <p className="text-center py-10">Please log in to view your account.</p>;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -32,7 +32,7 @@ const AccountPage: React.FC = () => {
       </div>
       <div>
         {activeTab === 'orders' && <UserOrders />}
-        {activeTab === 'profile' && <UserProfile profile={profile} userId={user.id} />}
+        {activeTab === 'profile' && <UserProfile profile={userProfile} userId={user.id} />}
       </div>
     </div>
   );
@@ -52,7 +52,7 @@ const UserOrders: React.FC = () => {
                 .select(`
                     *,
                     order_items ( *, products ( * ) ),
-                    profiles ( name, email )
+                    users ( name, email )
                 `)
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
@@ -100,7 +100,7 @@ const UserOrders: React.FC = () => {
 
 
 interface UserProfileProps {
-  profile: Profile;
+  profile: UserProfile;
   userId: string;
 }
 
@@ -116,7 +116,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, userId }) => {
         setLoading(true);
         setMessage('');
         const { error } = await supabase
-            .from('profiles')
+            .from('users')
             .update({ name, phone, address })
             .eq('id', userId);
 

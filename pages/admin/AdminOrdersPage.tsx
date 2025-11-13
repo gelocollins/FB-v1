@@ -17,7 +17,7 @@ const AdminOrdersPage: React.FC = () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('orders')
-            .select(`*, order_items ( *, products ( name, image_base64 ) ), profiles ( name, email, phone, address )`)
+            .select(`*, order_items ( *, products ( name, image_base64 ) ), users ( name, email, phone, address )`)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -66,7 +66,7 @@ const AdminOrdersPage: React.FC = () => {
                             {orders.map(order => (
                                 <tr key={order.id} className="border-b">
                                     <td className="p-3 text-sm">{new Date(order.created_at).toLocaleDateString()}</td>
-                                    <td className="p-3">{order.profiles?.name || 'N/A'}</td>
+                                    <td className="p-3">{order.users?.name || 'N/A'}</td>
                                     <td className="p-3 font-semibold">{formatCurrency(order.total_amount)}</td>
                                     <td className="p-3">{order.payment_method}</td>
                                     <td className="p-3">
@@ -94,10 +94,10 @@ const AdminOrdersPage: React.FC = () => {
                     <div className="space-y-4">
                        <div>
                            <h3 className="font-bold">Customer Info</h3>
-                           <p>Name: {selectedOrder.profiles?.name}</p>
-                           <p>Email: {selectedOrder.profiles?.email}</p>
-                           <p>Phone: {selectedOrder.profiles?.phone}</p>
-                           <p>Address: {selectedOrder.profiles?.address}</p>
+                           <p>Name: {selectedOrder.users?.name}</p>
+                           <p>Email: {selectedOrder.users?.email}</p>
+                           <p>Phone: {selectedOrder.users?.phone}</p>
+                           <p>Address: {selectedOrder.users?.address}</p>
                        </div>
                        <div>
                            <h3 className="font-bold">Order Items</h3>

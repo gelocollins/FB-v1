@@ -10,7 +10,7 @@ import Spinner from '../components/ui/Spinner';
 
 const CheckoutPage: React.FC = () => {
     const { cartItems, totalPrice, clearCart, cartCount } = useCart();
-    const { user, profile } = useAuth();
+    const { user, userProfile } = useAuth();
     const navigate = useNavigate();
     
     const [name, setName] = useState('');
@@ -24,17 +24,20 @@ const CheckoutPage: React.FC = () => {
     const [placingOrder, setPlacingOrder] = useState(false);
 
     useEffect(() => {
-        if (profile) {
-            setName(profile.name || '');
-            setPhone(profile.phone || '');
-            setAddress(profile.address || '');
+        if (userProfile) {
+            setName(userProfile.name || '');
+            setPhone(userProfile.phone || '');
+            setAddress(userProfile.address || '');
         }
-    }, [profile]);
+    }, [userProfile]);
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             setLoading(true);
-            const { data, error } = await supabase.from('payment_methods').select('*');
+            const { data, error } = await supabase
+                .from('payment_methods')
+                .select('*')
+                .eq('is_active', true);
             if (error) console.error('Error fetching payment methods:', error);
             else setPaymentMethods(data);
             setLoading(false);
@@ -144,7 +147,7 @@ const CheckoutPage: React.FC = () => {
         }
 
         // 4. Clear cart and navigate
-        clearCart();
+        await clearCart();
         setPlacingOrder(false);
         navigate(`/order-confirmation/${orderData.id}`);
     };

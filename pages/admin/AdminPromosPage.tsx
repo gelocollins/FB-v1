@@ -65,7 +65,7 @@ const AdminPromosPage: React.FC = () => {
                                 <th className="p-3">Code</th>
                                 <th className="p-3">Type</th>
                                 <th className="p-3">Value</th>
-                                <th className="p-3">Product ID</th>
+                                <th className="p-3">Dates</th>
                                 <th className="p-3">Actions</th>
                             </tr>
                         </thead>
@@ -75,7 +75,7 @@ const AdminPromosPage: React.FC = () => {
                                     <td className="p-3 font-mono">{promo.code || 'N/A'}</td>
                                     <td className="p-3 capitalize">{promo.promo_type}</td>
                                     <td className="p-3">{promo.promo_type === 'percentage' ? `${promo.value}%` : `₱${promo.value}`}</td>
-                                    <td className="p-3 font-mono text-xs">{promo.product_id || 'Global'}</td>
+                                    <td className="p-3 text-sm">{new Date(promo.start_date).toLocaleDateString()} - {new Date(promo.end_date).toLocaleDateString()}</td>
                                     <td className="p-3">
                                         <button onClick={() => handleOpenModal(promo)} className="text-blue-500 hover:underline mr-4">Edit</button>
                                         <button onClick={() => handleDelete(promo.id)} className="text-red-500 hover:underline">Delete</button>
@@ -93,12 +93,21 @@ const AdminPromosPage: React.FC = () => {
     );
 };
 
+const formatDateForInput = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 const PromoForm: React.FC<{ promo: Promo | null, onSave: () => void }> = ({ promo, onSave }) => {
     const [formData, setFormData] = useState({
         code: promo?.code || '',
         promo_type: promo?.promo_type || 'percentage',
         value: promo?.value || 0,
         product_id: promo?.product_id || '',
+        start_date: promo ? formatDateForInput(new Date(promo.start_date)) : formatDateForInput(new Date()),
+        end_date: promo ? formatDateForInput(new Date(promo.end_date)) : formatDateForInput(new Date()),
     });
     const [loading, setLoading] = useState(false);
     
@@ -142,8 +151,18 @@ const PromoForm: React.FC<{ promo: Promo | null, onSave: () => void }> = ({ prom
                 <option value="fixed">Fixed Amount</option>
                 <option value="global">Global</option>
             </select>
-            <input type="number" name="value" placeholder="Value (e.g., 10 for 10%)" value={formData.value} onChange={handleChange} required className="w-full p-2 border rounded" />
-            <input type="text" name="product_id" placeholder="Product ID (optional)" value={formData.product_id || ''} onChange={handleChange} className="w-full p-2 border rounded" />
+            <input type="number" step="0.01" name="value" placeholder="Value (e.g., 10 for 10%)" value={formData.value} onChange={handleChange} required className="w-full p-2 border rounded" />
+            <input type="text" name="product_id" placeholder="Product ID (optional, for specific item)" value={formData.product_id || ''} onChange={handleChange} className="w-full p-2 border rounded" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="start_date" className="block text-sm font-medium">Start Date</label>
+                  <input type="date" name="start_date" id="start_date" value={formData.start_date} onChange={handleChange} required className="w-full p-2 border rounded" />
+                </div>
+                <div>
+                   <label htmlFor="end_date" className="block text-sm font-medium">End Date</label>
+                   <input type="date" name="end_date" id="end_date" value={formData.end_date} onChange={handleChange} required className="w-full p-2 border rounded" />
+                </div>
+            </div>
             <button type="submit" disabled={loading} className="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 disabled:bg-gray-400">
                 {loading ? 'Saving...' : 'Save Promo'}
             </button>

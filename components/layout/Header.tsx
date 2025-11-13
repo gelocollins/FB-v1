@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 
 const Header: React.FC = () => {
-  const { user, profile, isAdmin, signOut } = useAuth();
+  const { user, userProfile, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
 
   const activeLinkStyle = {
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
           {user ? (
             <div className="relative group">
               <Link to="/account" className="text-gray-600 hover:text-yellow-600">
-                👤 <span className="hidden sm:inline">{profile?.name || profile?.email}</span>
+                👤 <span className="hidden sm:inline">{userProfile?.name || userProfile?.email}</span>
               </Link>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
                 <Link to="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</Link>

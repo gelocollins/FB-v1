@@ -25,7 +25,7 @@ const RegisterPage: React.FC = () => {
     try {
       // Check if any users exist to determine if this is the first signup
       const { count, error: countError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*', { count: 'exact', head: true });
 
       if (countError) throw countError;
@@ -47,7 +47,7 @@ const RegisterPage: React.FC = () => {
       // If auth user was created, also create a public profile
       if (authData.user) {
           const { error: profileError } = await supabase
-            .from('profiles')
+            .from('users')
             .insert({
                 id: authData.user.id,
                 email: authData.user.email!,

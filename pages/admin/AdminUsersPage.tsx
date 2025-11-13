@@ -1,24 +1,24 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../supabase/client';
-import { Profile } from '../../types';
+import { UserProfile } from '../../types';
 import Spinner from '../../components/ui/Spinner';
 
 const AdminUsersPage: React.FC = () => {
-    const [users, setUsers] = useState<Profile[]>([]);
+    const [users, setUsers] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchUsers = useCallback(async () => {
         setLoading(true);
         const { data, error } = await supabase
-            .from('profiles')
+            .from('users')
             .select('*')
             .order('email');
 
         if (error) {
             console.error('Error fetching users:', error);
         } else {
-            setUsers(data as Profile[]);
+            setUsers(data as UserProfile[]);
         }
         setLoading(false);
     }, []);
@@ -29,7 +29,7 @@ const AdminUsersPage: React.FC = () => {
 
     const handleRoleChange = async (userId: string, newRole: 'user' | 'admin') => {
         const { error } = await supabase
-            .from('profiles')
+            .from('users')
             .update({ role: newRole })
             .eq('id', userId);
         
