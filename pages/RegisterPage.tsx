@@ -57,9 +57,9 @@ const RegisterPage: React.FC = () => {
 
           if (profileError) {
               // This is a critical error. The auth user exists but the profile doesn't.
-              // A production app might try to delete the auth user here for cleanup.
-              console.error("Profile creation error:", profileError);
-              throw new Error("Failed to create user profile after signup. Please contact support.");
+              // Log the detailed error for better debugging.
+              console.error("Detailed Profile Creation Error:", JSON.stringify(profileError, null, 2));
+              throw new Error(`Failed to create user profile. DB Error: ${profileError.message}`);
           }
       }
 
@@ -70,6 +70,7 @@ const RegisterPage: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
+      console.error("Full registration error object:", err);
     } finally {
       setLoading(false);
     }
@@ -79,7 +80,7 @@ const RegisterPage: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Create an Account</h2>
-        {error && <p className="text-red-500 bg-red-100 p-3 rounded-md">{error}</p>}
+        {error && <p className="text-red-500 bg-red-100 p-3 rounded-md break-words">{error}</p>}
         {success && <p className="text-green-500 bg-green-100 p-3 rounded-md">{success}</p>}
         <form onSubmit={handleRegister} className="space-y-6">
            <div>

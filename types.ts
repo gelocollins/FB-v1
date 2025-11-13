@@ -216,10 +216,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_id_fkey" // Supabase console might name this profiles_id_fkey by convention
+            foreignKeyName: "users_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "users" // This refers to auth.users
+            referencedRelation: "users" 
             referencedColumns: ["id"]
           },
         ]

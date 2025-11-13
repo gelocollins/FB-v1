@@ -19,7 +19,7 @@ const AdminDashboardPage: React.FC = () => {
 
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
-        .select('total_amount', { count: 'exact' })
+        .select('total_amount')
         .in('order_status', ['paid', 'processing', 'shipped', 'delivered']);
       
       const { count: productsCount, error: productsError } = await supabase
@@ -27,7 +27,7 @@ const AdminDashboardPage: React.FC = () => {
         .select('*', { count: 'exact', head: true });
         
       const { count: usersCount, error: usersError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*', { count: 'exact', head: true });
         
       if (ordersError || productsError || usersError) {
@@ -35,10 +35,11 @@ const AdminDashboardPage: React.FC = () => {
       }
 
       const totalSales = orders?.reduce((acc, order) => acc + order.total_amount, 0) || 0;
+      const totalOrders = orders?.length || 0;
 
       setStats({
         totalSales,
-        totalOrders: orders?.length || 0,
+        totalOrders,
         totalProducts: productsCount || 0,
         totalUsers: usersCount || 0
       });
