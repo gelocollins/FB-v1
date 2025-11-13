@@ -1,0 +1,5 @@
+{
+  "name": "FeatherBoost Online Store",
+  "description": "A full-featured e-commerce web app for poultry products. Customers can browse, purchase products, and track orders. Admins can manage products, orders, and payment methods.",
+  "requestFramePermissions": []
+}
